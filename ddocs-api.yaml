@@ -67,8 +67,51 @@ paths:
           in: header
           name: Cookie
           description: The provided r_ cookie to refresh with
+  /users/@me:
+    get:
+      summary: Get current user
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                example-1:
+                  value:
+                    id: '259053800755691520'
+                    username: quin
+                    discriminator: '3017'
+                    avatar: 'https://cdn.discordapp.com/avatars/259053800755691520/1b1a1c1a62756406ebb3319138e08d4b.png?size=128'
+                    isAuthor: true
+        '401':
+          description: 'Unauthorized: refresh your token'
+        '403':
+          description: 'Forbidden: The discord oauth is no longer valid, please sign in again.'
+        '404':
+          description: The user was not found? treat as 403
+      operationId: get-users-@me
+      description: Gets the current user
+      security:
+        - JWT: []
 components:
-  schemas: {}
+  schemas:
+    User:
+      title: User
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        discriminator:
+          type: string
+        avatar:
+          type: string
+        isAuthor:
+          type: boolean
   securitySchemes:
     JWT:
       type: http
