@@ -96,6 +96,51 @@ paths:
       description: Gets the current user
       security:
         - JWT: []
+  /events:
+    get:
+      summary: GET Events
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+      operationId: get-events
+      description: Gets a collection of events within a specific year
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: year
+          description: The year to fetch the events from
+  '/event/{eventId}':
+    parameters:
+      - schema:
+          type: string
+        name: eventId
+        in: path
+        required: true
+        description: The ID of the event to get
+    get:
+      summary: GET Event
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get-event-eventId
+      description: Gets an event based off of the id supplied
 components:
   schemas:
     User:
@@ -112,6 +157,153 @@ components:
           type: string
         isAuthor:
           type: boolean
+    PartialEvent:
+      title: Partial event
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        thumbnail:
+          type: string
+        heldAt:
+          type: string
+          description: ISO8601 datetime
+      description: A partial event
+    Event:
+      description: ''
+      type: object
+      x-examples:
+        example-1:
+          author:
+            Username: quin
+            Discriminator: '3017'
+            UserId: '259053800755691520'
+            Avatar: 'https://cdn.discordapp.com/avatars/259053800755691520/1b1a1c1a62756406ebb3319138e08d4b.png?size=128'
+          contributors: []
+          summaries:
+            - id: 9d9c1a6ad69c4b5598e77a00bc9f369e
+              title: Test title
+              content: Test content
+              type: qnaanswer
+              isNew: true
+              thumbnail: null
+              featureType: null
+          id: 9587372f767141499a7d94e7a9bee01d
+          title: Test
+          description: Test desc
+          thumbnail: null
+          heldAt: '2022-02-01T18:29:48.793764+00:00'
+      properties:
+        author:
+          $ref: '#/components/schemas/Author'
+        contributors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Author'
+        summaries:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Summary'
+        id:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        description:
+          type:
+            - string
+            - 'null'
+          minLength: 1
+        thumbnail:
+          type:
+            - string
+            - 'null'
+        heldAt:
+          type: string
+          minLength: 1
+      required:
+        - author
+        - contributors
+        - summaries
+        - id
+        - title
+        - description
+        - heldAt
+    Author:
+      description: An author on a summary or event
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        discriminator:
+          type: string
+          minLength: 1
+        id:
+          type: string
+          minLength: 1
+        avatar:
+          type: string
+          minLength: 1
+      required:
+        - username
+        - discriminator
+        - id
+        - avatar
+      x-examples:
+        example-1:
+          username: quin
+          discriminator: '3017'
+          id: '259053800755691520'
+          avatar: 'https://cdn.discordapp.com/avatars/259053800755691520/1b1a1c1a62756406ebb3319138e08d4b.png?size=128'
+    Summary:
+      description: ''
+      type: object
+      x-examples:
+        example-1:
+          id: 9d9c1a6ad69c4b5598e77a00bc9f369e
+          title: Test title
+          content: Test content
+          type: qnaanswer
+          isNew: true
+          thumbnail: null
+          featureType: null
+      properties:
+        id:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        content:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          minLength: 1
+        isNew:
+          type: boolean
+        thumbnail:
+          type:
+            - 'null'
+            - string
+        featureType:
+          type:
+            - string
+            - 'null'
+      required:
+        - id
+        - title
+        - content
+        - type
+        - isNew
   securitySchemes:
     JWT:
       type: http
