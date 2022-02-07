@@ -117,6 +117,11 @@ paths:
           in: query
           name: year
           description: The year to fetch the events from
+        - schema:
+            type: string
+          in: query
+          name: search
+          description: Returns events based off of a string search
   '/event/{eventId}':
     parameters:
       - schema:
@@ -141,6 +146,314 @@ paths:
           description: Internal Server Error
       operationId: get-event-eventId
       description: Gets an event based off of the id supplied
+  /assets:
+    post:
+      summary: Create asset
+      operationId: post-assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  format:
+                    type: string
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      description: Creates a site asset and thumbnail image
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  format: binary
+            examples: {}
+        description: The form content for the asset
+  '/assets/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: The id of the asset to fetch
+    get:
+      summary: Get asset
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            image/jpeg:
+              schema:
+                type: object
+                properties: {}
+              examples: {}
+            image/png:
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      operationId: get-assets-id
+      description: Gets an asset
+  '/assets/{id}.thumb':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: The id of the assets thumbnail to fetch
+    get:
+      summary: Get asset thumbnail
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            image/jpeg:
+              schema:
+                type: object
+                properties: {}
+            image/png:
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      operationId: get-assets-id-.thumb
+      description: 'Gets an assets thumbnail, this is only applicable to user generated content. Avatars don''t have thumbnails.'
+  /drafts:
+    get:
+      summary: Get all drafts
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      operationId: get-drafts
+      description: Gets all the current drafts
+      security:
+        - JWT: []
+    post:
+      summary: Create draft
+      operationId: post-drafts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      requestBody:
+        $ref: '#/components/requestBodies/CreateDraft'
+      security:
+        - JWT: []
+      description: Creates a draft
+  '/drafts/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: 'The id of the draft '
+    get:
+      summary: Get draft
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      operationId: get-drafts-id
+      security:
+        - JWT: []
+      description: Gets a draft
+    patch:
+      summary: Modify draft
+      operationId: patch-drafts-id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      description: 'Modifies a draft, all json properties are optional.'
+      security:
+        - JWT: []
+      requestBody:
+        $ref: '#/components/requestBodies/CreateDraft'
+  '/drafts/{id}/summaries':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: The id of the draft
+    post:
+      summary: Create summary
+      operationId: post-drafts-id-summaries
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      description: Creates a new summary for this draft
+      requestBody:
+        $ref: '#/components/requestBodies/CreateSummary'
+      security:
+        - JWT: []
+  '/drafts/{id}/summaries/{summary.id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: The draft id
+      - schema:
+          type: string
+        name: summary.id
+        in: path
+        required: true
+        description: The summary id
+    patch:
+      summary: Modify summary
+      operationId: patch-drafts-id-summaries-summary.id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      description: 'Modifies this summary, all json properties are optional'
+      requestBody:
+        $ref: '#/components/requestBodies/CreateSummary'
+    delete:
+      summary: Delete summary
+      operationId: delete-drafts-id-summaries-summary.id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      description: Deletes this summary
+  '/events/{id}/related':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: The id of the event to get related ones from
+    get:
+      summary: Get related events
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      operationId: get-events-id-related
+      description: Gets a collection of related events to the specified event
+  /socket:
+    get:
+      summary: Open websocket
+      tags: []
+      responses:
+        '101':
+          description: Switching Protocols
+      operationId: get-socket
+      description: Opens a websocket
 components:
   schemas:
     User:
@@ -304,7 +617,65 @@ components:
         - content
         - type
         - isNew
+    Draft:
+      title: Draft
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        heldAt:
+          type: string
+        author:
+          $ref: '#/components/schemas/Author'
+        contributors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Author'
+        thumbnail:
+          type: string
+        summaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Summary'
   securitySchemes:
     JWT:
       type: http
       scheme: bearer
+  requestBodies:
+    CreateDraft:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              heldAt:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+              thumbnail:
+                type: string
+      description: The model for creating a draft
+    CreateSummary:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              content:
+                type: string
+              type:
+                type: string
+              isNew:
+                type: string
+              featureType:
+                type:
+                  - string
+                  - 'null'
